@@ -34,11 +34,11 @@ private:
 class Chef {
 public:
     explicit Chef(unsigned int id);
-
+    // Cria e armazena um novo objeto de Atendimento
     void iniciarAtendimento(unsigned int mesa);
-
+    // Passa o pedido para o Atendimento (que envia pelo pipe)
     void prepararPedido(const std::string &pedido);
-
+    // Deleta o objeto Atendimento (acionando seu destrutor)
     void encerrarAtendimento();
 
         // Retorna o ID deste chef
@@ -46,5 +46,5 @@ public:
 
 private:
     const unsigned int id;
-    Atendimento *atendimento;
+    Atendimento *atendimento; //ponteiro para objeto, diz se vai estar ocioso ou em atendimento
 };

@@ -9,7 +9,7 @@ Mesa::Mesa() {
 
 // Retorna true se a mesa tem cozinheiro
 bool Mesa::mesaTemChef() {
-    return this->chef != nullptr; // usa a variável minúscula "chef"
+    return this->chef != nullptr;  //O ponteiro de chef dessa mesa é diferente de nulo?
 }
 
 // Associa um cozinheiro à mesa
@@ -34,8 +34,8 @@ void Mesa::adicionarPedido(std::string pedido) {
 
 // Retorna o pedido e o apaga da mesa
 std::string Mesa::removerPedido() {
-    std::string p = this->pedido;
-    this->pedido.clear();
+    std::string p = this->pedido; //armazena o pedido
+    this->pedido.clear(); //limpa o pedido de dentro do objeto
     return p;
 }
 

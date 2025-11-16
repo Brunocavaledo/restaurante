@@ -9,25 +9,18 @@
 // -----------------------------------------------------------------------------
 Restaurante::Restaurante(unsigned int qtdMesas, unsigned int qtdChefs) {
 
-    // Cria 'qtdMesas' objetos Mesa no vetor (acesso O(1))
-    this->mesas.resize(qtdMesas); 
+    // Cria 'qtdMesas' objetos Mesa no vetor
+    this->mesas.resize(qtdMesas); //resize determina o tamanho do vetor de acordo com a qtde de mesas
 
     // Cria cada chef e coloca na fila de disponíveis
     for (unsigned int i = 0; i < qtdChefs; ++i) {
-        // O ID do chef agora é 'i' (começando em 0)
-        this->filaDeChefs.push(new Chef(i)); //add o cara na fila
-
-        // Limpa o arquivo de log deste chef para uma nova execução
-        // O nome do arquivo usa 'i' (0, 1, 2...)
-        std::string nomeArquivo = "ChefeCozinha " + std::to_string(i) + ".txt";
-
-        // Abre em modo padrão que vai apagar logs antigos
-        std::ofstream logFile(nomeArquivo); 
-        if (logFile.is_open()) {
-            // O cabeçalho usa 'i' (0, 1, 2...)
-            logFile << "ChefeCozinha " << i << std::endl;
-            logFile << std::endl; // Adiciona uma linha em branco
-            logFile.close();
+        this->filaDeChefs.push(new Chef(i)); // O ID do chef vai ser o i, add ele na fila
+        std::string nomeArquivo = "ChefeCozinha " + std::to_string(i) + ".txt"; //cria o arquivo
+        std::ofstream logFile(nomeArquivo);{  // Abre em modo padrão, daí vai apagar logs antigos
+        if (logFile.is_open())    //se o arquivo abriu de boas
+            logFile << "ChefeCozinha " << i << std::endl;  // escreve no cabeçalho do arquivo: ChefeCozinha "tal", e pula uma linha
+            logFile << std::endl; // Adiciona mais uma linha em branco
+            logFile.close();  //fecha o arquivo de log
         }
     }
 }
@@ -38,22 +31,22 @@ Restaurante::Restaurante(unsigned int qtdMesas, unsigned int qtdChefs) {
 // -----------------------------------------------------------------------------
 Chef* Restaurante::getChefLivre() {
     if (this->filaDeChefs.empty())
-        return nullptr; // Retorna nulo se não houver chefs
+        return nullptr; // Retorna ponteiro nulo se não houver chefs disponíveis
     
     Chef* c = this->filaDeChefs.front(); // Pega o primeiro da fila
     this->filaDeChefs.pop();             // Remove da fila
-    return c;
+    return c;                            // Retorna o ponteiro desse chef
 }
 
 // -----------------------------------------------------------------------------
-// Devolve um chef para a fila de disponíveis (O(1))
+// Devolve um chef para a fila de disponíveis
 // -----------------------------------------------------------------------------
 void Restaurante::liberarChef(Chef* chef) {
     this->filaDeChefs.push(chef); // Adiciona o chef de volta ao fim da fila
 }
 
 // -----------------------------------------------------------------------------
-// Coloca uma mesa na fila de espera (O(1))
+// Coloca uma mesa na fila de espera
 // -----------------------------------------------------------------------------
 void Restaurante::esperarAtendimento(int numeroMesa) {
     this->filaDeMesasEspera.push(numeroMesa);
@@ -72,7 +65,7 @@ void Restaurante::pedidoRecebido(int numeroMesa, std::string pedido) {
         return;
     }
 
-    // Pega a referência da mesa (acesso O(1))
+    // Pega a referência da mesa
     Mesa& mesa = this->mesas[numeroMesa];
 
     // ---------------------------------------------------
@@ -88,20 +81,21 @@ void Restaurante::pedidoRecebido(int numeroMesa, std::string pedido) {
             //Escreve que atendimento encerrou ali
             std::cout << "<< Mesa " << numeroMesa << " finalizada. Chef " << chef->getId() << " esta livre." << std::endl;
 
-            // 4. Lógica da Fila de Espera: Chef liberado atende o próximo
-            if (!this->filaDeMesasEspera.empty()) { //Se não tem mesas esperando
-                int mesaEmEsperaId = this->filaDeMesasEspera.front(); //
-                this->filaDeMesasEspera.pop();
-                Mesa& mesaEmEspera = this->mesas[mesaEmEsperaId];
-                Chef* chefLivre = this->getChefLivre(); 
+            // 4. Lógica da Fila de Espera: Após chef ser liberado ele atende o próximo
+            if (!this->filaDeMesasEspera.empty()) { //Se a fila de mesas não estiver vazia
+                int mesaEmEsperaId = this->filaDeMesasEspera.front(); //armazena a primeira mesa da fila
+                this->filaDeMesasEspera.pop(); //remove a que tirou da fila, atualizando a fila
+                Mesa &mesaEmEspera = this->mesas[mesaEmEsperaId]; //Cria a referência mesaEmEspera que aponta para o objeto Mesa dentro do vetor mesas no índice [mesaEmEsperaId]
+                Chef* chefLivre = this->getChefLivre(); //Pega o primeiro chefe livre e armazena o retorno da getChefLivre
 
+                //Aqui abaixo escreve qual chefe pegou e qual mesa ele tá atendendo, e que ela veio lá da fila de espera.
                 std::cout << ">> Chef " << chefLivre->getId() << " atendendo mesa " << mesaEmEsperaId << " da fila de espera." << std::endl;
 
-                mesaEmEspera.adicionarChef(chefLivre);
-                chefLivre->iniciarAtendimento(mesaEmEsperaId);
+                mesaEmEspera.adicionarChef(chefLivre); //Associa um chefe à uma mesa
+                chefLivre->iniciarAtendimento(mesaEmEsperaId); //Cria la na classe chef um processo filho com fork pra essa chefe e essa mesa
 
-                chefLivre->prepararPedido("\nMesa " + std::to_string(mesaEmEsperaId) + ":");
-                chefLivre->prepararPedido(mesaEmEspera.removerPedido());
+                chefLivre->prepararPedido("\nMesa " + std::to_string(mesaEmEsperaId) + ":"); //manda a string "mesa tal" pelo pipe pro filho, que lê ela e escreve no log
+                chefLivre->prepararPedido(mesaEmEspera.removerPedido()); //Remove o pedido da mesa e retornando esse pedido passa ele profilho escrever no log
             }
         } else {
             std::cout << ">> Mesa " << numeroMesa << " nao esta em atendimento." << std::endl;
@@ -156,18 +150,18 @@ void Restaurante::pedidoRecebido(int numeroMesa, std::string pedido) {
 // -----------------------------------------------------------------------------
 // Interpreta uma entrada do usuário "N PEDIDO"
 // -----------------------------------------------------------------------------
-std::pair<int, std::string> Restaurante::interpretarLinha(std::string linha) {
-    size_t pos = linha.find(' ');
+std::pair<int, std::string> Restaurante::interpretarLinha(std::string linha) { // vai retornar um  par de dois valores
+    size_t pos = linha.find(' '); //procura o espaço dentro da string e guardar onde ele fica
 
-    if (pos == std::string::npos)
+    if (pos == std::string::npos) //se não achar retorna -1 e string vazia, que é erro
         return { -1, "" };
 
     try {
         // Converte a primeira parte para inteiro (número da mesa)
-        int mesa = std::stoi(linha.substr(0, pos));
-        std::string pedido = linha.substr(pos + 1);
-        return { mesa, pedido };
-    } catch (const std::exception& e) {
-        return { -1, "" };
+        int mesa = std::stoi(linha.substr(0, pos)); //pega do começo até o espaço e converte em int e guarda
+        std::string pedido = linha.substr(pos + 1); //pega do espaço até o final e guarda
+        return { mesa, pedido }; // retorna tudo separado
+    } catch (const std::exception& e) {  //se digitar mesa e pedido errados, vai retorna erro
+        return { -1, "" }; 
     }
 }

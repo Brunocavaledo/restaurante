@@ -1,10 +1,9 @@
 #include <iostream>     // biblioteca para entrada/saída (cout, cin)
 #include <string>       // para usar std::string
-// Bibliotecas não usadas foram removidas
 
 #include "Restaurante.hpp" 
 #include "Mesa.hpp"
-#include "chef.hpp"      // --- CORREÇÃO: "chef.hpp" (minúsculo) ---
+#include "chef.hpp"
 
 // Função principal do programa
 int main() {
