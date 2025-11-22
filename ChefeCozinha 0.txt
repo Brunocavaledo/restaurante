@@ -1,0 +1,7 @@
+ChefeCozinha 0
+
+
+Mesa 0: ovo e pao
+ bacon
+
+Mesa 5: cachorro quente

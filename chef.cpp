@@ -52,7 +52,7 @@ Atendimento::~Atendimento() {
 
 // Executado pelo PAI para enviar um pedido ao FILHO
 void Atendimento::prepararPedido(const std::string &pedido) const {
-    write(fd[1], pedido.c_str(), pedido.size() + 1); //escreve no funil,usa char e bota mais 1 byte no final p/ o filho saber onde termina a msg
+    write(fd[1], pedido.c_str(), pedido.size()); //escreve no funil
 }
 
 // Executado APENAS pelo FILHO
@@ -73,11 +73,11 @@ void Atendimento::iniciar() {
         const ssize_t n = read(fd[0], buffer, sizeof(buffer) - 1);  // Lê o pipe, guarda no buffer
         if (n <= 0) break; // Se n <= 0, pode ser um erro, encerra
         
-        buffer[n] = '\0'; // Adiciona o terminador nulo
-        std::string msg(buffer); // Converte para string
-
+        //buffer[n] = '\0'; // Adiciona o terminador nulo
+        //std::string msg(buffer); // Converte para string
+        logFile.write(buffer, n);
         // Escreve no arquivo de log
-        logFile << msg << std::endl; //adiciona uma linha em branco
+        //logFile << msg << std::endl; //adiciona uma linha em branco
         logFile.flush(); // Garante que foi escrito
     }
 
