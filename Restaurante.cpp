@@ -51,7 +51,7 @@ void Restaurante::liberarChef(Chef* chef) {
 
 // Coloca uma mesa na lista de espera pq não tinha um chef disponível
 void Restaurante::esperarAtendimento(int numeroMesa) {
-    this->filaDeMesasEspera.push(numeroMesa);
+    this->filaDeMesasEspera.push(numeroMesa); //coloca a mesa na fila de espera
     std::cout << ">> Mesa " << numeroMesa << " colocada na fila de espera." << std::endl;
 }
 
@@ -67,10 +67,10 @@ void Restaurante::iniciarAtendimentoDaMesa(int mesaId, Mesa& mesa, Chef* chef) {
     mesa.adicionarChef(chef);
     
     // 2. O Chef cria o processo FILHO (fork) e prepara o Pipe
-    chef->iniciarAtendimento(mesaId); 
+    chef->iniciarAtendimento(mesaId);
 
     // 3. Envia o cabeçalho "Mesa X:" pelo pipe para o filho escrever no txt
-    chef->prepararPedido("\nMesa " + std::to_string(mesaId) + ":"); 
+    chef->prepararPedido("\nMesa " + std::to_string(mesaId) + ":");
     
     // 4. Envia o pedido que estava guardado na mesa.
     chef->prepararPedido(" " + mesa.removerPedido() + "\n");

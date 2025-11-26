@@ -73,12 +73,8 @@ void Atendimento::iniciar() {
         const ssize_t n = read(fd[0], buffer, sizeof(buffer) - 1);  // Lê o pipe, guarda no buffer
         if (n <= 0) break; // Se n <= 0, pode ser um erro, encerra
         
-        //buffer[n] = '\0'; // Adiciona o terminador nulo
-        //std::string msg(buffer); // Converte para string
-        logFile.write(buffer, n);
-        // Escreve no arquivo de log
-        //logFile << msg << std::endl; //adiciona uma linha em branco
-        logFile.flush(); // Garante que foi escrito
+        logFile.write(buffer, n); //escreve
+        logFile.flush(); // Garante que foi escrito, tipo "salvar agora!"
     }
 
     logFile.close(); //fecha o arquivo
