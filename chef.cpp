@@ -59,7 +59,7 @@ void Atendimento::prepararPedido(const std::string &pedido) const {
 void Atendimento::iniciar() {
     pid = getpid(); // Filho pega seu próprio PID
 
-    std::string nomeArquivo = "ChefeCozinha " + std::to_string(this->chefId) + ".txt"; //monta o nome do arquivo
+    std::string nomeArquivo = "ChefeCozinha " + std::to_string(this->chefId) + ".txt"; //monta o nome do arquivo pra ficar igual ao que a gente quer
     // Abre o log em modo append, q só adiciona
     std::ofstream logFile(nomeArquivo, std::ios::app); //adiciona ao final do arquivo que o pai criou
     if (!logFile.is_open()) { //se não abriu de boas o arquivo
@@ -86,7 +86,7 @@ void Atendimento::iniciar() {
 Chef::Chef(const unsigned int id) : id(id), atendimento(nullptr) {
 }
 
-// Cria e armazena um novo objeto de Atendimento
+// Cria e armazena um novo objeto Atendimento
 void Chef::iniciarAtendimento(const unsigned int mesa) {
     atendimento = new Atendimento(id, mesa);
 }

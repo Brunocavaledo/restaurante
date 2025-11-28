@@ -52,7 +52,6 @@ void Restaurante::liberarChef(Chef* chef) {
 // Coloca uma mesa na lista de espera pq não tinha um chef disponível
 void Restaurante::esperarAtendimento(int numeroMesa) {
     this->filaDeMesasEspera.push(numeroMesa); //coloca a mesa na fila de espera
-    std::cout << ">> Mesa " << numeroMesa << " colocada na fila de espera." << std::endl;
 }
 
 // -----------------------------------------------------------------------------
@@ -61,7 +60,6 @@ void Restaurante::esperarAtendimento(int numeroMesa) {
 
 // Função Central: Começa um atendimento
 void Restaurante::iniciarAtendimentoDaMesa(int mesaId, Mesa& mesa, Chef* chef) {
-    std::cout << ">> Mesa " << mesaId << " sera atendida pelo Chef " << chef->getId() << std::endl;
     
     // 1. Vincula o Chef ao objeto Mesa (na memória do programa principal)
     mesa.adicionarChef(chef);
@@ -91,8 +89,6 @@ void Restaurante::verificarFilaDeEspera() {
             // Pega a referência real do objeto mesa
             Mesa &mesaEmEspera = this->mesas[mesaEmEsperaId];
             
-            std::cout << "(Fila de Espera) "; // Debug pra saber que veio da fila
-            
             // Reutiliza a função central para iniciar os trabalhos
             iniciarAtendimentoDaMesa(mesaEmEsperaId, mesaEmEspera, chefLivre);
         }
@@ -108,13 +104,11 @@ void Restaurante::tratarPedidoFim(int numeroMesa, Mesa& mesa) {
         chef->encerrarAtendimento(); // Mata o processo filho (SIGKILL) e fecha pipes
         mesa.removerChef();          // Desvincula o chef da mesa (mesa fica livre)
         this->liberarChef(chef);     // Devolve o chef para a fila de livres
-        
-        std::cout << "<< Mesa " << numeroMesa << " finalizada. Chef " << chef->getId() << " esta livre." << std::endl;
 
         // IMPORTANTE: Como um chef ficou livre, vamos ver se a fila anda!
         verificarFilaDeEspera();
     } else {
-        std::cout << ">> Mesa " << numeroMesa << " nao esta em atendimento para ser finalizada." << std::endl;
+        std::cout << ">> Mesa " << numeroMesa << " esta na fila de espera e nao tem chef para ser finalizada." << std::endl;
     }
 }
 
@@ -123,7 +117,6 @@ void Restaurante::tratarPedidoComChef(int numeroMesa, Mesa& mesa, std::string pe
     Chef* chef = mesa.getChef(); 
     // Apenas formata e manda pelo pipe. O processo filho lá no chef.cpp recebe e grava.
     chef->prepararPedido(" " + pedido + "\n");
-    std::cout << ">> Pedido '" << pedido << "' enviado para cozinha (Mesa " << numeroMesa << ")" << std::endl;
 }
 
 // Lógica executada quando é um NOVO cliente (mesa sem chef)
@@ -131,7 +124,6 @@ void Restaurante::tratarNovaMesa(int numeroMesa, Mesa& mesa, std::string pedido)
     // 1. Verifica se a mesa já estava na fila de espera (tem pedido guardado, mas sem chef)
     std::string pedidoAntigo = mesa.removerPedido();
     if (!pedidoAntigo.empty()) {
-        std::cout << ">> Mesa " << numeroMesa << " ja esta na fila. Pedido '" << pedido << "' ignorado." << std::endl;
         mesa.adicionarPedido(pedidoAntigo); // Devolve o pedido original para não perder
         return;
     }
@@ -156,12 +148,6 @@ void Restaurante::tratarNovaMesa(int numeroMesa, Mesa& mesa, std::string pedido)
 // Recebe a ordem da main e decide para qual função auxiliar enviar
 // -----------------------------------------------------------------------------
 void Restaurante::pedidoRecebido(int numeroMesa, std::string pedido) {
-    // Validação de segurança: mesa existe?
-    if (numeroMesa < 0 || (size_t)numeroMesa >= this->mesas.size()) {
-        std::cerr << "Erro: Mesa " << numeroMesa << " inexistente!\n";
-        return;
-    }
-
     Mesa& mesa = this->mesas[numeroMesa]; // Pega referência da mesa
 
     // Roteamento da decisão
